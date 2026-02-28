@@ -570,7 +570,6 @@ async function loadRiggedModel(overrideModelUrl) {
           m.side = THREE.DoubleSide;
           m.transparent = true;
           m.opacity = 0.85;
-          // Enable alpha test for hair strand transparency
           if (m.alphaMap || (m.map && m.map.format === THREE.RGBAFormat)) {
             m.alphaTest = 0.5;
             m.transparent = true;
@@ -718,7 +717,7 @@ function updateRiggedFrame(frame) {
 
   // Grip pose: rotate forearms toward grip point so arms converge smoothly (pre-release only)
   const releaseFrame = metadata.throw_window && metadata.throw_window.release;
-  const isPreRelease = releaseFrame == null || frame <= releaseFrame;
+  const isPreRelease = releaseFrame == null || frame < releaseFrame;
   if (isPreRelease && keypointsData) {
     const L_WRIST = 62, R_WRIST = 41;
     const lWrist = getKp(frame, L_WRIST);
