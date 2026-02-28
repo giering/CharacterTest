@@ -1,0 +1,107 @@
+{
+  "version": "3.0",
+  "coord_space": "world",
+  "gravity_source": "foot_contact_svd",
+  "hammer_source": "original",
+  "throw": "SeanCExemplar4T_small",
+  "frame_count": 125,
+  "fps": 23.97599983215332,
+  "focal_length": 2202.9072265625,
+  "camera_position": [
+    0.04630774331882772,
+    -0.08639106510799184,
+    0.2398970106927208
+  ],
+  "camera_target": [
+    -0.3829289972782135,
+    0.08290751278400421,
+    -3.632545232772827
+  ],
+  "camera_up": [
+    0,
+    1,
+    0
+  ],
+  "ground_y": -0.8888860845565796,
+  "ground_plane_rmse": 0.05137575417757034,
+  "ground_contact_points": 114,
+  "files": {
+    "keypoints": "keypoints.bin",
+    "hammer": "hammer.bin",
+    "fill_type": "fill_type.bin",
+    "hammer_provenance": "hammer_provenance.bin",
+    "support_state": "support_state.bin",
+    "leg_alignment": "leg_alignment.bin",
+    "separation": "separation.bin",
+    "back_lean": "back_lean.bin",
+    "bone_rotations": "bone_rotations.bin",
+    "root_position": "root_position.bin"
+  },
+  "has_vertex_colors": false,
+  "turn_boundaries": [
+    68,
+    85,
+    97,
+    109,
+    120
+  ],
+  "turn_labels": [
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4"
+  ],
+  "throw_window": {
+    "start": 68,
+    "release": 124
+  },
+  "lift_quality": {
+    "lift_pct_throw": 9.876543045043945,
+    "label": "Poor"
+  },
+  "anchor_correction": true,
+  "anchor_max_offset_px": [
+    6.12243179912835,
+    0.8862800933569492
+  ],
+  "circle": {
+    "center": [
+      -0.30004052954081994,
+      -0.8888860845565796,
+      -4.366933259825205
+    ],
+    "radius": 1.0674999952316284,
+    "detected": true
+  },
+  "pip_thumbnails": {
+    "dir": "frames_thumb",
+    "width": 320,
+    "pattern": "frame_{:05d}.jpg"
+  },
+  "rigged": true,
+  "bone_count": 17,
+  "bone_names": [
+    "Hips",
+    "Spine",
+    "Chest",
+    "UpperChest",
+    "Neck",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "LeftUpLeg",
+    "LeftLeg",
+    "RightUpLeg",
+    "RightLeg",
+    "LeftHand",
+    "RightHand"
+  ],
+  "model": "models/humanoid.glb",
+  "glb_hips_neck_dist": 0.4894342061721251,
+  "model_scale": 0.9517028316350402,
+  "athlete_height": 1.4691436611950117
+}

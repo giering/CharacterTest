@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ThrowSage Viewer (Rigged)</title>
+  <link rel="stylesheet" href="style.css?v=20260225c">
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="label" id="loading-label">Loading mesh data...</div>
+    <div id="loading-progress">
+      <div id="loading-bar"></div>
+    </div>
+    <div class="label" id="loading-bytes"></div>
+  </div>
+
+  <!-- Onboarding overlay (first visit) -->
+  <div id="onboarding" class="hidden">
+    <div id="onboarding-hints">
+      <div class="hint">Drag to rotate</div>
+      <div class="hint">Pinch to zoom</div>
+      <div class="hint">Scrub timeline to step through frames</div>
+    </div>
+    <div id="onboarding-dismiss">Tap anywhere to start</div>
+  </div>
+
+  <!-- Header -->
+  <div id="header">
+    <span class="throw-name" id="throw-name">—</span>
+    <span class="frame-info" id="frame-info">Frame 0 / 0</span>
+    <span class="lift-quality" id="lift-quality"></span>
+    <span class="fps-display" id="fps-display"></span>
+    <button id="screenshot-btn" title="Save screenshot">&#128247;</button>
+    <button id="fullscreen-btn" title="Toggle fullscreen">&#x26F6;</button>
+  </div>
+
+  <!-- Three.js canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- Hamburger menu (mobile) -->
+  <button id="hamburger-btn" aria-label="Toggle menu">&#9776;</button>
+
+  <!-- Visibility toggles -->
+  <div id="toggles">
+    <button class="toggle-btn" data-target="planes">Leg Planes</button>
+    <button class="toggle-btn" data-target="backtilt">Back Tilt</button>
+    <button class="toggle-btn active" data-target="separation">Separation</button>
+    <button class="toggle-btn active" data-target="circle">Circle</button>
+    <button class="toggle-btn" data-target="maxmin">Max/Min</button>
+    <button class="toggle-btn" id="reset-view-btn">View Reset</button>
+    <select id="model-select" title="Switch model">
+      <option value="sean_mesh">Sean (Original)</option>
+      <option value="humanoid">Mannequin</option>
+      <option value="male_medium">Male Medium</option>
+      <option value="ch02">Casual Female</option>
+      <option value="ch08">Hoodie Male</option>
+      <option value="ch22">Shirt Female</option>
+      <option value="ch28">Hoodie Female</option>
+      <option value="kaya">Kaya</option>
+    </select>
+  </div>
+
+  <!-- Picture-in-picture video frame -->
+  <div id="pip-container">
+    <div id="pip-wrapper">
+      <img id="pip-frame" alt="Video frame">
+      <canvas id="pip-overlay"></canvas>
+    </div>
+    <div id="pip-label">Frame 0</div>
+  </div>
+
+  <!-- Metric graph overlays -->
+  <div id="metric-graphs">
+    <div id="separation-container">
+      <canvas id="separation-graph" width="360" height="140"></canvas>
+    </div>
+    <div id="backtilt-container">
+      <canvas id="backtilt-graph" width="360" height="140"></canvas>
+    </div>
+    <div id="kneeangle-container">
+      <canvas id="kneeangle-graph" width="360" height="140"></canvas>
+    </div>
+  </div>
+
+  <!-- Color legend -->
+  <div id="color-legend"></div>
+
+  <!-- Timeline -->
+  <div id="timeline">
+    <div id="timeline-controls">
+      <button id="play-btn" title="Play/Pause">&#9654;</button>
+      <div id="speed-group">
+        <button class="speed-btn" data-speed="0.1">0.1x</button>
+        <button class="speed-btn" data-speed="0.25">0.25x</button>
+        <button class="speed-btn" data-speed="0.5">0.5x</button>
+        <button class="speed-btn active" data-speed="1">1x</button>
+        <span class="group-divider"></span>
+        <button class="range-btn active" data-range="all">All</button>
+        <button class="range-btn" data-range="wind">Wind</button>
+        <button class="range-btn" data-range="throw">Throw</button>
+      </div>
+      <div id="scrubber-container">
+        <canvas id="provenance-bar"></canvas>
+        <div id="throw-window-bar"></div>
+        <input type="range" id="scrubber" min="0" max="0" value="0" step="1">
+        <div id="markers"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="viewer.js?v=20260225c"></script>
+</body>
+</html>
