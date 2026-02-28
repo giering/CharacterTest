@@ -197,31 +197,33 @@ async function loadData() {
 
   isRigged = !!metadata.rigged;
 
-  if (isRigged) {
-    // Rigged mode: load keypoints + hammer + bone data (no vertices/faces)
-    const [kps, hammer, boneRots, rootPos] = await Promise.all([
-      loadBinary(metadata.files.keypoints, 'float32'),
-      loadBinary(metadata.files.hammer, 'float32'),
-      loadBinary(metadata.files.bone_rotations, 'float32'),
-      loadBinary(metadata.files.root_position, 'float32'),
-    ]);
-    keypointsData = kps;
-    hammerData = hammer;
-    boneRotationsData = boneRots;
-    rootPositionData = rootPos;
+  // Always load keypoints + hammer
+  const loaders = [
+    loadBinary(metadata.files.keypoints, 'float32'),
+    loadBinary(metadata.files.hammer, 'float32'),
+  ];
+  // Load vertices + faces if available (body mesh for "Sean Original" option)
+  const hasVerts = !!metadata.files.vertices;
+  const hasFaces = !!metadata.files.faces;
+  if (hasVerts) loaders.push(loadBinary(metadata.files.vertices, 'float32'));
+  if (hasFaces) loaders.push(loadBinary(metadata.files.faces, 'int32'));
+  // Load bone data if rigged
+  const hasBones = isRigged && metadata.files.bone_rotations;
+  if (hasBones) {
+    loaders.push(loadBinary(metadata.files.bone_rotations, 'float32'));
+    loaders.push(loadBinary(metadata.files.root_position, 'float32'));
+  }
+
+  const results = await Promise.all(loaders);
+  let idx = 0;
+  keypointsData = results[idx++];
+  hammerData = results[idx++];
+  if (hasVerts) verticesData = results[idx++];
+  if (hasFaces) facesData = results[idx++];
+  if (hasBones) {
+    boneRotationsData = results[idx++];
+    rootPositionData = results[idx++];
     console.log(`Rigged mode: ${metadata.bone_count} bones, ${metadata.frame_count} frames`);
-  } else {
-    // Legacy mode: load vertices + faces
-    const [verts, faces, kps, hammer] = await Promise.all([
-      loadBinary(metadata.files.vertices, 'float32'),
-      loadBinary(metadata.files.faces, 'int32'),
-      loadBinary(metadata.files.keypoints, 'float32'),
-      loadBinary(metadata.files.hammer, 'float32'),
-    ]);
-    verticesData = verts;
-    facesData = faces;
-    keypointsData = kps;
-    hammerData = hammer;
   }
 
   // Load fill_type if available
@@ -555,24 +557,46 @@ async function loadRiggedModel(overrideModelUrl) {
       }
       console.log(`Torso mask: ${torsoVertCount}/${vertCount} vertices`);
 
-      // Add vertex color attribute (initialize to base color)
-      const colorArray = new Float32Array(vertCount * 3);
-      for (let i = 0; i < vertCount; i++) {
-        colorArray[i * 3]     = BASE_R;
-        colorArray[i * 3 + 1] = BASE_G;
-        colorArray[i * 3 + 2] = BASE_B;
-      }
-      riggedModel.geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+      // Check if GLB has textured materials (e.g. Mixamo characters with hair alpha)
+      const origMat = riggedModel.material;
+      const hasTexture = Array.isArray(origMat)
+        ? origMat.some(m => m.map)
+        : (origMat && origMat.map);
 
-      // Material with vertex colors
-      riggedModel.material = new THREE.MeshStandardMaterial({
-        vertexColors: true,
-        roughness: 0.6,
-        metalness: 0.05,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.85,
-      });
+      if (hasTexture) {
+        // Keep original textured materials — just ensure double-sided + slight transparency
+        const mats = Array.isArray(origMat) ? origMat : [origMat];
+        mats.forEach(m => {
+          m.side = THREE.DoubleSide;
+          m.transparent = true;
+          m.opacity = 0.85;
+          // Enable alpha test for hair strand transparency
+          if (m.alphaMap || (m.map && m.map.format === THREE.RGBAFormat)) {
+            m.alphaTest = 0.5;
+            m.transparent = true;
+          }
+        });
+        torsoMask = null;  // torso shading not supported on textured models
+        console.log('Keeping original textured materials');
+      } else {
+        // Untextured model (mannequin etc): add vertex colors for torso shading
+        const colorArray = new Float32Array(vertCount * 3);
+        for (let i = 0; i < vertCount; i++) {
+          colorArray[i * 3]     = BASE_R;
+          colorArray[i * 3 + 1] = BASE_G;
+          colorArray[i * 3 + 2] = BASE_B;
+        }
+        riggedModel.geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+        riggedModel.material = new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          roughness: 0.6,
+          metalness: 0.05,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.85,
+        });
+      }
 
       riggedRoot = root;
       scene.add(root);

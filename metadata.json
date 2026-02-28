@@ -35,7 +35,9 @@
     "separation": "separation.bin",
     "back_lean": "back_lean.bin",
     "bone_rotations": "bone_rotations.bin",
-    "root_position": "root_position.bin"
+    "root_position": "root_position.bin",
+    "vertices": "vertices.bin",
+    "faces": "faces.bin"
   },
   "has_vertex_colors": false,
   "turn_boundaries": [
@@ -103,5 +105,7 @@
   "model": "models/humanoid.glb",
   "glb_hips_neck_dist": 0.4894342061721251,
   "model_scale": 0.9517028316350402,
-  "athlete_height": 1.4691436611950117
+  "athlete_height": 1.4691436611950117,
+  "vertex_count": 9002,
+  "face_count": 18000
 }
