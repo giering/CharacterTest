@@ -376,9 +376,9 @@ function initScene() {
   controls.dampingFactor = 0.1;
 
   // Lights
-  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
   scene.add(ambient);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
   dirLight.position.set(2, 5, 5);
   scene.add(dirLight);
 
@@ -562,21 +562,28 @@ async function loadRiggedModel(overrideModelUrl) {
       const hasTexture = Array.isArray(origMat)
         ? origMat.some(m => m.map)
         : (origMat && origMat.map);
-
       if (hasTexture) {
-        // Keep original textured materials — just ensure double-sided + slight transparency
-        const mats = Array.isArray(origMat) ? origMat : [origMat];
-        mats.forEach(m => {
-          m.side = THREE.DoubleSide;
-          m.transparent = true;
-          m.opacity = 0.85;
-          if (m.alphaMap || (m.map && m.map.format === THREE.RGBAFormat)) {
-            m.alphaTest = 0.5;
-            m.transparent = true;
-          }
-        });
-        torsoMask = null;  // torso shading not supported on textured models
-        console.log('Keeping original textured materials');
+        // Replace materials on ALL meshes in the GLB (not just SkinnedMesh)
+        const replaceMatOnMesh = (mesh) => {
+          const orig = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          const replaced = orig.map(m => {
+            const mat = new THREE.MeshStandardMaterial({
+              map: m.map || null,
+              alphaMap: m.alphaMap || null,
+              roughness: 0.85,
+              metalness: 0.0,
+              side: THREE.DoubleSide,
+              transparent: !!(m.alphaMap || (m.map && m.map.format === THREE.RGBAFormat)),
+              opacity: 1.0,
+            });
+            if (mat.transparent) mat.alphaTest = 0.5;
+            return mat;
+          });
+          mesh.material = replaced.length === 1 ? replaced[0] : replaced;
+        };
+        root.traverse(c => { if (c.isMesh) replaceMatOnMesh(c); });
+        torsoMask = null;
+        console.log('Replaced ALL mesh materials with Lambert (matte)');
       } else {
         // Untextured model (mannequin etc): add vertex colors for torso shading
         const colorArray = new Float32Array(vertCount * 3);
